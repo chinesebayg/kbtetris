@@ -25,6 +25,16 @@ python -m pip install -r requirements.txt
 python tetris.py
 ```
 
+## Web version
+
+There is a web version in the `web/` folder. You can open `web/index.html` in a browser or serve it locally:
+
+```powershell
+cd "c:\Users\kaibo\.vscode\projects\RPGgame1\web"
+python -m http.server 8000
+# then open http://localhost:8000 in your browser
+```
+
 ## Controls
 
 - Left/Right arrows: move
