@@ -10,10 +10,14 @@
   <div id="app">
     <canvas id="board" width="300" height="600"></canvas>
     <div id="hud">
-      <div id="score">Score: 0</div>
-      <div id="lines">Lines: 0</div>
-      <div id="level">Level: 1</div>
-      <div id="controls">← →: move  ↑/X: rotate  ↓: soft  Space: hard</div>
+      <canvas id="next" width="120" height="120"></canvas>
+      <div id="score">🔢 Score: <span id="score-val">0</span></div>
+      <div id="lines">📏 Lines: <span id="lines-val">0</span></div>
+      <div id="level">⚡ Level: <span id="level-val">1</span></div>
+      <div id="controls">⬅️ ➡️: move  ⬆️/X: rotate  ⬇️: soft  ⎵: hard</div>
+      <div id="sound-row">
+        <button id="mute">🔊 Sound: On</button>
+      </div>
     </div>
   </div>
   <script src="tetris.js"></script>

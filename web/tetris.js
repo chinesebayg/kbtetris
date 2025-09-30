@@ -88,6 +88,26 @@ let next = new Piece(KEYS[Math.floor(Math.random()*KEYS.length)]);
 let fall=0, fallSpeed=0.5, score=0, lines=0, level=1;
 let moveLeft=false, moveRight=false, rotate=false, soft=false;
 let running=true, paused=false;
+// audio
+let audioCtx = null;
+let soundsOn = true;
+function ensureAudio(){
+  if(audioCtx) return audioCtx;
+  try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ audioCtx = null }
+  return audioCtx;
+}
+function playTone(freq, time=0.08, type='sine', vol=0.2){
+  if(!soundsOn) return;
+  const ctx = ensureAudio(); if(!ctx) return;
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.value = vol;
+  o.connect(g); g.connect(ctx.destination);
+  o.start();
+  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + time);
+  o.stop(ctx.currentTime + time + 0.02);
+}
 
 function draw(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -101,9 +121,19 @@ function draw(){
   for(const [x,y] of current.cells()){
     if(y>=0){ ctx.fillStyle = current.color; ctx.fillRect(x*CELL,y*CELL,CELL,CELL); ctx.strokeStyle='#fff'; ctx.strokeRect(x*CELL,y*CELL,CELL,CELL); }
   }
-  document.getElementById('score').innerText = 'Score: '+score;
-  document.getElementById('lines').innerText = 'Lines: '+lines;
-  document.getElementById('level').innerText = 'Level: '+level;
+  document.getElementById('score-val').innerText = score;
+  document.getElementById('lines-val').innerText = lines;
+  document.getElementById('level-val').innerText = level;
+  // draw next piece
+  const ncanvas = document.getElementById('next');
+  const nctx = ncanvas.getContext('2d');
+  nctx.clearRect(0,0,ncanvas.width,ncanvas.height);
+  const cell = 24;
+  const sx = Math.floor((ncanvas.width - next.shape[0].length*cell)/2);
+  const sy = Math.floor((ncanvas.height - next.shape.length*cell)/2);
+  for(let r=0;r<next.shape.length;r++)for(let c=0;c<next.shape[r].length;c++){
+    if(next.shape[r][c]){ nctx.fillStyle = next.color; nctx.fillRect(sx+c*cell, sy+r*cell, cell-2, cell-2); nctx.strokeStyle='#222'; nctx.strokeRect(sx+c*cell, sy+r*cell, cell-2, cell-2); }
+  }
 }
 
 let last = performance.now();
@@ -112,10 +142,10 @@ function loop(now){
   if(!paused){
     if(moveLeft){ if(valid(current,grid,current.x-1,current.y)) current.x--; moveLeft=false }
     if(moveRight){ if(valid(current,grid,current.x+1,current.y)) current.x++; moveRight=false }
-    if(rotate){ if(current.rotate(grid)){} rotate=false }
+  if(rotate){ if(current.rotate(grid)){ playTone(880,0.06, 'sine', 0.18) } rotate=false }
     let speed = fallSpeed/(1+(level-1)*0.1);
     if(soft) speed = Math.max(0.02, speed/5);
-    if(fall>=speed){ fall=0; if(valid(current,grid,current.x,current.y+1)) current.y++; else { lock(current,grid); [grid,cleared]=clearLines(grid); if(cleared){ score+=cleared*100; lines+=cleared; level = 1+Math.floor(lines/10) } current=next; next=new Piece(KEYS[Math.floor(Math.random()*KEYS.length)]); if(!valid(current,grid,current.x,current.y)){ alert('Game Over! Score:'+score); running=false } } }
+  if(fall>=speed){ fall=0; if(valid(current,grid,current.x,current.y+1)) current.y++; else { lock(current,grid); playTone(380,0.10,'sawtooth',0.25); [grid,cleared]=clearLines(grid); if(cleared){ playTone(900,0.06,'triangle',0.18); score+=cleared*100; lines+=cleared; level = 1+Math.floor(lines/10) } current=next; next=new Piece(KEYS[Math.floor(Math.random()*KEYS.length)]); if(!valid(current,grid,current.x,current.y)){ playTone(300,0.4,'sine',0.28); alert('Game Over! Score:'+score); running=false } } }
   }
   draw(); if(running) requestAnimationFrame(loop);
 }
@@ -130,7 +160,17 @@ window.addEventListener('keydown',e=>{
   if(e.key==='ArrowDown') soft=true;
   if(e.code==='Space'){
     while(valid(current,grid,current.x,current.y+1)) current.y++;
-    lock(current,grid); [grid,cleared]=clearLines(grid); if(cleared){ score+=cleared*100; lines+=cleared; level = 1+Math.floor(lines/10) } current=next; next=new Piece(KEYS[Math.floor(Math.random()*KEYS.length)]);
+    playTone(520,0.08,'square',0.2);
+    lock(current,grid); [grid,cleared]=clearLines(grid); if(cleared){ playTone(900,0.06,'triangle',0.18); score+=cleared*100; lines+=cleared; level = 1+Math.floor(lines/10) } current=next; next=new Piece(KEYS[Math.floor(Math.random()*KEYS.length)]);
   }
 });
 window.addEventListener('keyup',e=>{ if(e.key==='ArrowDown') soft=false; if(e.key==='ArrowLeft') moveLeft=false; if(e.key==='ArrowRight') moveRight=false; if(e.key==='ArrowUp' || e.key.toLowerCase()==='x') rotate=false });
+
+// Mute button
+const muteBtn = document.getElementById('mute');
+muteBtn.addEventListener('click', ()=>{
+  soundsOn = !soundsOn;
+  muteBtn.textContent = soundsOn ? '🔊 Sound: On' : '🔇 Sound: Off';
+  muteBtn.classList.toggle('muted', !soundsOn);
+  if(soundsOn) ensureAudio();
+});
