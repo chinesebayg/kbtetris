@@ -1,7 +1,9 @@
 # Tetris in Python
 
 This is a compact single-file Tetris implementation using pygame.
-
+All created within 30 minutes with GITHUB Copilot free plan.
+I also told the agent to create a web version that you can play at
+https://kbtetris.vercel.app/web/
 ![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)
 
 ## Repository
