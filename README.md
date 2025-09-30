@@ -1,25 +1,31 @@
-Tetris in Python
+# Tetris in Python
 
 This is a compact single-file Tetris implementation using pygame.
 
-Requirements
+![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)
+
+## Repository
+
+https://github.com/chinesebayg/kbtetris
+
+## Requirements
 
 - Python 3.8+
 - pygame
 
-Install dependencies:
+## Install dependencies
 
 ```powershell
 python -m pip install -r requirements.txt
 ```
 
-Run:
+## Run
 
 ```powershell
 python tetris.py
 ```
 
-Controls
+## Controls
 
 - Left/Right arrows: move
 - Up arrow / X: rotate
@@ -28,6 +34,13 @@ Controls
 - P: pause
 - Esc / Q: quit
 
-Notes
+## Contributing
 
-This implementation is intentionally small and suitable for learning. Feel free to expand features like hold, better rotation system, improved scoring, next-piece display, and sound.
+Feel free to open issues or PRs. Small improvements that are welcome:
+- Add next-piece and hold features
+- Improve rotation to standard SRS
+- Add sounds and a start/menu screen
+
+## License
+
+This project is licensed under the MIT License - see the `LICENSE` file for details.
